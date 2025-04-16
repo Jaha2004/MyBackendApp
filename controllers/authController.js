@@ -4,6 +4,7 @@ const User = require('../models/userModel');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const asyncHandler = require('express-async-handler');
+const { getCart } = require('./orderController');
 
 const generateToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -13,10 +14,10 @@ const generateToken = (id) => {
 
 // Register new user
 const registerUser = asyncHandler(async (req, res) => {
-    console.log('maaa');
+    // console.log('maaa');
     const { name, email, password } = req.body;
+    // console.log(req.body);
     console.log(req.body);
-    
     const userExists = await User.findOne({ email });
     if (userExists) {
         res.status(400);
@@ -35,6 +36,7 @@ const registerUser = asyncHandler(async (req, res) => {
             name: user.name,
             email: user.email,
             token: generateToken(user._id),
+            cart: [],
         });
     } else {
         res.status(400);
@@ -45,16 +47,21 @@ const registerUser = asyncHandler(async (req, res) => {
 // Authenticate user & get token
 const authUser = asyncHandler(async (req, res) => {
     const { email, password } = req.body;
-
+    console.log(email,password);
+    
     const user = await User.findOne({ email });
-
+    console.log(user);
     if (user && (await user.matchPassword(password))) {
+        const [cart, products] = await Promise.all([getCart(user._id)]);
+        // console.log(products);
         res.json({
             _id: user._id,
             name: user.name,
             email: user.email,
             isAdmin: user.isAdmin,
             token: generateToken(user._id),
+            cart: cart,
+            products: products,
         });
     } else {
         res.status(401);
@@ -65,7 +72,6 @@ const authUser = asyncHandler(async (req, res) => {
 // Get user profile
 const getUserProfile = asyncHandler(async (req, res) => {
     const user = await User.findById(req.user._id);
-
     if (user) {
         res.json({
             _id: user._id,

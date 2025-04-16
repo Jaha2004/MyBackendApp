@@ -9,11 +9,12 @@ const orderRoutes = require('./routes/orderRoutes');
 const { notFound, errorHandler } = require('./middlewares/errorMiddleware');
 dotenv.config();
 const cors=require('cors');
+const { protect } = require('./middlewares/authMiddleware');
 connectDB();
 
 const app = express();
 app.get('/',(req,res)=>{
-    res.send('RAand')
+    res.send('hi');
 })
 app.use(cors());
 app.use(express.json());
@@ -25,5 +26,4 @@ app.use(notFound);
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
-
 app.listen(PORT, console.log(`Server running on port ${PORT}`));
