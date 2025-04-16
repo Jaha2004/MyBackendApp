@@ -11,7 +11,6 @@ dotenv.config();
 const cors=require('cors');
 const { protect } = require('./middlewares/authMiddleware');
 connectDB();
-
 const app = express();
 app.get('/',(req,res)=>{
     res.send('hi');
