@@ -9,7 +9,7 @@ const addOrderItems = asyncHandler(async (req, res, next) => {
   const { productId } = req.body;
   // console.log(productId);
   const userId = req.user.id;
-  console.log(userId);
+  // console.log(userId);
   try {
     let cart = await Order.findOne({ userId });
     // console.log(cart);
@@ -80,14 +80,14 @@ const removeFromCart = async (req, res) => {
     const productId = req.body.productId;
     const product = await Product.findOne({ id: productId });
     const cart = await Order.findOne({ userId });
-    console.log(cart.items.length);
+    // console.log(cart.items.length);
     if (!cart) {
       return res.status(404).json({ message: "Cart not found" });
     }
     // console.log(product.id);
     // Find the index of the item to remove
     const itemIndex = cart.items.findIndex(
-      (item) => item.productId.toString() == productId.toString()
+      (item) => item.productId == productId
     );
     // console.log(itemIndex);
     if (itemIndex === -1) {
@@ -98,6 +98,8 @@ const removeFromCart = async (req, res) => {
     cart.items.splice(itemIndex, 1);
     // // Save the updated cart
     await cart.save();
+
+    console.log(cart.items.length);
     // res.status(200).json(cart);
     // const products = await Product.find({});
     // const acc = [];
@@ -107,9 +109,9 @@ const removeFromCart = async (req, res) => {
     //       acc.push(product);
     //     }
     //   })
-    // })
-    const productIds = cart.items.map(item => item.productId);
-    // console.log(productIds);
+    // }
+    const productIds = cart.items?.map(item => item.productId);
+    console.log(productIds);
     const products=[];
     for (const id of productIds) {
       const product = await Product.findOne({ id }); 
