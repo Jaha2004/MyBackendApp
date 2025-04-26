@@ -40,7 +40,7 @@ const getCart = async (userId) => {
   const cart = await Order.findOne({ userId });
   const products = await Product.find({});
   if (!cart) {
-    console.log('no cart');
+    // console.log('no cart');
     return cart;
   }
   else {
@@ -99,7 +99,7 @@ const removeFromCart = async (req, res) => {
     // // Save the updated cart
     await cart.save();
 
-    console.log(cart.items.length);
+    // console.log(cart.items.length);
     // res.status(200).json(cart);
     // const products = await Product.find({});
     // const acc = [];
@@ -111,7 +111,7 @@ const removeFromCart = async (req, res) => {
     //   })
     // }
     const productIds = cart.items?.map(item => item.productId);
-    console.log(productIds);
+    // console.log(productIds);
     const products=[];
     for (const id of productIds) {
       const product = await Product.findOne({ id }); 
