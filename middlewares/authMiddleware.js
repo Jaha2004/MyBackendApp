@@ -32,7 +32,7 @@ const protect = asyncHandler(async (req, res, next) => {
 
 const sendConfirmationEmail = async (email, token) => {
   try {
-    const confirmUrl = `http://localhost:5173/confirmEmail?token=${token}`;
+    const confirmUrl = `https://myecom-zebw.vercel.app/confirmEmail?token=${token}`;
     const msg = {
       from: 'Soudarjya Guha (TechHub)',
       to: email,
