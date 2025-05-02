@@ -5,12 +5,16 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const asyncHandler = require('express-async-handler');
 const { getCart } = require('./orderController');
+const nodemailer = require('nodemailer');
+const { generateEmailToken, sendConfirmationEmail } = require('../middlewares/authMiddleware');
 
 const generateToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET, {
         expiresIn: '30d',
     });
 };
+
+
 
 // Register new user
 const registerUser = asyncHandler(async (req, res) => {
@@ -23,26 +27,42 @@ const registerUser = asyncHandler(async (req, res) => {
         res.status(400);
         throw new Error('User already exists');
     }
+    const token = generateEmailToken(name,email,password);
+    // send email
+    await sendConfirmationEmail(email, token);
 
-    const user = await User.create({
-        name,
-        email,
-        password,
-    });
-
-    if (user) {
-        res.status(201).json({
-            _id: user._id,
-            name: user.name,
-            email: user.email,
-            token: generateToken(user._id),
-            cart: [],
-        });
-    } else {
-        res.status(400);
-        throw new Error('Invalid user data');
-    }
+    res.json({message:'Confirmation email sent, please check your inbox.'});
 });
+
+const confirmEmail = async (req, res) => {
+    const { token } = req.query;
+  
+    try {
+      const decoded = jwt.verify(token, process.env.EMAIL_SECRET);
+      const { name, email, password } = decoded;
+  
+      const existingUser = await User.findOne({ email });
+      if (existingUser) {
+        return res.status(400).json({ message: "Email already verified or in use" });
+      }
+  
+      const user = await User.create({ name, email, password });
+      if (user) {
+        return res.status(201).json({
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          token: generateToken(user._id),
+          cart: [],
+        });
+      } else {
+        return res.status(400).json({ message: "Invalid user data" });
+      }
+    } catch (err) {
+      return res.status(400).json({ message: "Invalid or expired token" });
+    }
+  };
+  
 
 // Authenticate user & get token
 const authUser = asyncHandler(async (req, res) => {
@@ -53,7 +73,7 @@ const authUser = asyncHandler(async (req, res) => {
     console.log(user);
     if (user && (await user.matchPassword(password))) {
         const [cart, products] = await Promise.all([getCart(user._id)]);
-        // console.log(products);
+        console.log(cart);
         res.json({
             _id: user._id,
             name: user.name,
@@ -85,4 +105,4 @@ const getUserProfile = asyncHandler(async (req, res) => {
     }
 });
 
-module.exports = { registerUser, authUser, getUserProfile };
+module.exports = { registerUser, authUser, getUserProfile,confirmEmail };

@@ -23,12 +23,14 @@ const addOrderItems = asyncHandler(async (req, res, next) => {
       });
       // console.log(cart);
       await cart.save();
-      //   return res.status(201).json(cart);
+      console.log(cart.items.length);
+      res.status(200).json(product);
+      return;
     }
     // If cart exists, update it
     cart.items.push({ productId });
     await cart.save();
-    // console.log(cart);
+    console.log(cart.items.length);
     res.status(200).json(product);
     // next();
   } catch (err) {
@@ -73,8 +75,6 @@ const getOrderById = asyncHandler(
 
 //Remove from Cart
 const removeFromCart = async (req, res) => {
-  // Get the productId from the request body
-  // console.log(userId);
   try {
     const userId = req.user.id; // Get the userId from the authenticated user
     const productId = req.body.productId;
@@ -84,8 +84,6 @@ const removeFromCart = async (req, res) => {
     if (!cart) {
       return res.status(404).json({ message: "Cart not found" });
     }
-    // console.log(product.id);
-    // Find the index of the item to remove
     const itemIndex = cart.items.findIndex(
       (item) => item.productId == productId
     );
@@ -93,23 +91,10 @@ const removeFromCart = async (req, res) => {
     if (itemIndex === -1) {
       return res.status(404).json({ message: "Item not found in cart" });
     }
-
     // // Remove the item from the cart
     cart.items.splice(itemIndex, 1);
     // // Save the updated cart
     await cart.save();
-
-    // console.log(cart.items.length);
-    // res.status(200).json(cart);
-    // const products = await Product.find({});
-    // const acc = [];
-    // cart.items.map(item => {
-    //   products.map(product => {
-    //     if (item.productId == product.id) {
-    //       acc.push(product);
-    //     }
-    //   })
-    // }
     const productIds = cart.items?.map(item => item.productId);
     // console.log(productIds);
     const products=[];
@@ -119,7 +104,7 @@ const removeFromCart = async (req, res) => {
       // or _id if using ObjectId
       if (product) products.push(product);
     }
-    // console.log(products.length);
+    console.log(products.length);
     res.status(200).json(products);
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });
