@@ -34,11 +34,8 @@ const sendConfirmationEmail = async (email, token) => {
   try {
     const confirmUrl = `http://localhost:5173/confirmEmail?token=${token}`;
     const msg = {
+      from: 'Soudarjya Guha (TechHub)',
       to: email,
-      from: {
-        email: process.env.FROM_EMAIL, // ✅ Replace with your verified sender
-        name: 'Soudarjya Guha (TechHub)',
-      },
       subject: 'Confirm your email',
       html: `
         <!DOCTYPE html>
@@ -105,7 +102,21 @@ const sendConfirmationEmail = async (email, token) => {
         </html>
       `,
     };
-    await sgMail.send(msg);
+    const transporter=nodemailer.createTransport({
+      service:'gmail',
+      auth:{
+        user:process.env.FROM_EMAIL,
+        pass:process.env.API_KEY,
+      }
+    })
+    // await sgMail.send(msg);
+     transporter.sendMail(msg,(error,info)=>{
+      if (error) {
+        console.error('Error sending mail:', error);
+      } else {
+        console.log('Email sent:', info.response);
+      }
+    })
     console.log('Email sent successfully to', email);
   } catch (error) {
     console.error('Error sending email:', error.response?.body || error.message);
