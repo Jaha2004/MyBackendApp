@@ -32,7 +32,7 @@ const protect = asyncHandler(async (req, res, next) => {
 
 const sendConfirmationEmail = async (email, token) => {
   try {
-    const confirmUrl = `https://my-frontend-app-delta.vercel.app//confirmEmail?token=${token}`;
+    const confirmUrl = `https://my-frontend-app-delta.vercel.app/confirmEmail?token=${token}`;
     const msg = {
       from: 'Soudarjya Guha (TechHub)',
       to: email,
