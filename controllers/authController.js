@@ -21,7 +21,7 @@ const registerUser = asyncHandler(async (req, res) => {
     // console.log('maaa');
     const { name, email, password } = req.body;
     // console.log(req.body);
-    console.log(req.body);
+    // console.log(req.body);
     const userExists = await User.findOne({ email });
     if (userExists) {
         res.status(400);
@@ -60,7 +60,7 @@ const confirmEmail = async (req, res) => {
       }
     } catch (err) {
       return res.status(400).json({ message: "Invalid or expired token" });
-      console.log(err);
+      // console.log(err);
     }
   };
   
